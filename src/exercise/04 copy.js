@@ -4,48 +4,11 @@
 import * as React from 'react'
 import {useLocalStorageState} from '../utils'
 
-function Board({squares, onClick}) {
-  function renderSquare(i) {
-    return (
-      <button className="square" onClick={() => onClick(i)}>
-        {squares[i]}
-      </button>
-    )
-  }
-
-  return (
-    <div>
-      {/* 🐨 put the status in the div below */}
-      {/* <div className="status">{status}</div> */}
-      <div className="board-row">
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
-      </div>
-      <div className="board-row">
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
-      </div>
-      <div className="board-row">
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
-      {/* <button className="restart" onClick={restart}>
-        restart
-      </button> */}
-    </div>
-  )
-}
-
-function Game() {
-  const initSquares = Array(9).fill(null)
-
-  const [history, setHistory] = React.useState([initSquares])
-
+function Board() {
   // 🐨 squares is the state for this component. Add useState for squares
-  const [squares, setSquares] = useLocalStorageState('squares', initSquares)
+  const [squares, setSquares] = useLocalStorageState('squares', () =>
+    Array(9).fill(null),
+  )
 
   // 🐨 We'll need the following bits of derived state:
   // - nextValue ('X' or 'O')
@@ -80,10 +43,6 @@ function Game() {
     //
     // 🐨 set the squares to your copy
 
-    setHistory(oldHistory => {
-      const newHistory = oldHistory.slice(0, oldHistory.indexOf(squares) + 1)
-      return [...newHistory, squaresCopy]
-    })
     setSquares(squaresCopy)
   }
 
@@ -91,42 +50,48 @@ function Game() {
     // 🐨 reset the squares
     // 💰 `Array(9).fill(null)` will do it!
 
-    setHistory([initSquares])
-    setSquares(initSquares)
+    setSquares(Array(9).fill(null))
   }
 
-  const currentSquares = squares
-  const moves = history.map((h, index) => {
-    const isCurrent = squares === h
-
+  function renderSquare(i) {
     return (
-      <React.Fragment key={index}>
-        <span>{`${index}. `}</span>
-        <button
-          onClick={() => {
-            setSquares(h)
-          }}
-          disabled={isCurrent}
-        >
-          {index === 0 ? 'Go to game start' : `Go to move #${index}`}
-          {isCurrent ? ' (current)' : ''}
-        </button>
-        <br />
-      </React.Fragment>
+      <button className="square" onClick={() => selectSquare(i)}>
+        {squares[i]}
+      </button>
     )
-  })
+  }
 
+  return (
+    <div>
+      {/* 🐨 put the status in the div below */}
+      <div className="status">{status}</div>
+      <div className="board-row">
+        {renderSquare(0)}
+        {renderSquare(1)}
+        {renderSquare(2)}
+      </div>
+      <div className="board-row">
+        {renderSquare(3)}
+        {renderSquare(4)}
+        {renderSquare(5)}
+      </div>
+      <div className="board-row">
+        {renderSquare(6)}
+        {renderSquare(7)}
+        {renderSquare(8)}
+      </div>
+      <button className="restart" onClick={restart}>
+        restart
+      </button>
+    </div>
+  )
+}
+
+function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board onClick={selectSquare} squares={currentSquares} />
-        <button className="restart" onClick={restart}>
-          restart
-        </button>
-      </div>
-      <div className="game-info">
-        <div>{status}</div>
-        <ol>{moves}</ol>
+        <Board />
       </div>
     </div>
   )
